@@ -24,15 +24,15 @@ final class CacheClientSpy: CacheClient {
     }
 
     private var completionHandlerDelete: (CacheClient.SaveResult)?
-    func delete(comletion: @escaping CacheClient.DeleteResult) {
+    func delete(completion: @escaping CacheClient.DeleteResult) {
         methodsCalled.append(.delete)
-        completionHandlerDelete = comletion
+        completionHandlerDelete = completion
     }
 
     private var completionHandlerLoad: (LoadResult)?
-    func load(comletion: @escaping LoadResult) {
+    func load(completion: @escaping LoadResult) {
         methodsCalled.append(.load)
-        completionHandlerLoad = comletion
+        completionHandlerLoad = completion
         
     }
     
