@@ -54,8 +54,8 @@ final class RestaurantDomainTests: XCTestCase {
     func test_load_and_returned_success_with_restaurant_item_list() throws {
         let (sut, client, _) = makeSUT()
         
-        let (model1, json1) = makeItem()
-        let (model2, json2) = makeItem()
+        let (model1, json1) = makeRestaurantItem()
+        let (model2, json2) = makeRestaurantItem()
         
         assert(sut: sut, completion: .success([model1, model2])) {
             let jsonItem = ["items": [json1, json2]]
@@ -68,8 +68,8 @@ final class RestaurantDomainTests: XCTestCase {
         let (sut, client, _) = makeSUT()
         
         assert(sut: sut, completion: .failure(.invalidData)) {
-            let (_, json1) = makeItem()
-            let (_, json2) = makeItem()
+            let (_, json1) = makeRestaurantItem()
+            let (_, json2) = makeRestaurantItem()
             
             let jsonItem = ["items": [json1, json2]]
             let data = try! XCTUnwrap(JSONSerialization.data(withJSONObject: jsonItem))
@@ -128,7 +128,7 @@ final class RestaurantDomainTests: XCTestCase {
         return Data("{\"items\": [] }".utf8)
     }
     
-    private func makeItem(id: UUID = UUID(),
+    private func makeRestaurantItem(id: UUID = UUID(),
                           name: String = "name",
                           location: String = "location",
                           distance: Float = 5.5,

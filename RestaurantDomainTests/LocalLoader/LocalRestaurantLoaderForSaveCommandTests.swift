@@ -95,10 +95,6 @@ final class LocalRestaurantLoaderForSaveCommandTests: XCTestCase {
         XCTAssertNil(returnedError)
     }
     
-    private func makeItem() -> RestaurantItem {
-        return RestaurantItem(id: UUID(), name: "name", location: "location", distance: 5.5, ratings: 0, parasols: 0)
-    }
-    
     private func assert(
         _ sut: LocalRestaurantLoader,
         completion error: NSError?,

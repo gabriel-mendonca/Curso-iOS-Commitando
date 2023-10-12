@@ -7,30 +7,15 @@
 
 import Foundation
 
-enum LocalResultState {
-    case empty
-    case success(items: [RestaurantItem], timestamp: Date)
-    case failure(Error)
-}
-
-public protocol CacheClient {
-    typealias SaveResult = (Error?) -> Void
-    typealias DeleteResult = (Error?) -> Void
-    typealias LoadResult = (LocalResultState) -> Void
-    
-    func save(_ items: [RestaurantItem], timestamp: Date, completion: @escaping SaveResult)
-    func delete(comletion: @escaping DeleteResult)
-    func load(comletion: @escaping LoadResult)
-}
-
-
 public final class LocalRestaurantLoader {
     
     private let cache: CacheClient
+    private let cachePolicy: CachePolicy
     private let currentDate: () -> Date
     
-    public init(cache: CacheClient, currentDate: @escaping () -> Date) {
+    public init(cache: CacheClient, cachePolicy: CachePolicy = RestaurantLoaderCachePolicy(), currentDate: @escaping () -> Date) {
         self.cache = cache
+        self.cachePolicy = cachePolicy
         self.currentDate = currentDate
     }
     
@@ -44,6 +29,20 @@ public final class LocalRestaurantLoader {
         }
     }
     
+    public func validateCache() {
+        cache.load { [weak self] state in
+            guard let self else { return }
+            switch state {
+            case let .success(_ , timestamp) where !self.cachePolicy.validate(timestamp, with: self.currentDate()):
+                self.cache.delete() { _ in }
+            case .failure:
+                self.cache.delete() { _ in }
+            default:
+                break
+            }
+        }
+    }
+    
     private func saveOnCache(_ items: [RestaurantItem], completion: @escaping (Error?) -> Void) {
         cache.save(items, timestamp: currentDate()) { [weak self] error in
             guard self != nil else { return }
@@ -53,16 +52,16 @@ public final class LocalRestaurantLoader {
 }
 
 extension LocalRestaurantLoader: RestaurantLoader {
+    
     public func load(completion: @escaping (Result<[RestaurantItem], RestaurantResultError>) -> Void) {
-        cache.load { state in
-            
+        cache.load { [weak self] state in
+            guard let self else { return }
             switch state {
-            case .empty: completion(.success([]))
-            case.success(items: <#T##[RestaurantItem]#>, timestamp: <#T##Date#>)
-            }
-            if error == nil {
+            case let .success(items, timestamp) where self.cachePolicy.validate(timestamp, with: self.currentDate()):
+                completion(.success(items))
+            case .success, .empty:
                 completion(.success([]))
-            } else {
+            case .failure:
                 completion(.failure(.invalidData))
             }
         }

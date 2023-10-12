@@ -15,22 +15,40 @@ final class LocalRestaurantLoaderForLoadCommandTests: XCTestCase {
         
         assert(sut, completion: .failure(.invalidData)) {
             let anyError = NSError(domain: "any error", code: -1)
-            cache.completionHandlerForLoad(anyError)
+            cache.completionHandlerForLoad(.failure(anyError))
         }
-        
-        XCTAssertEqual(cache.methodsCalled, [.load])
     }
     
     func test_load_returned_completion_success_with_empty_data() {
         let (sut, cache) = makeSUT()
         
         assert(sut, completion: .success([])) {
-            cache.completionHandlerForLoad(nil)
+            cache.completionHandlerForLoad(.empty)
         }
-        
-        XCTAssertEqual(cache.methodsCalled, [.load])
     }
-
+    
+    func test_load_returned_data_with_one_day_less_than_old_cache() {
+        let currentDate = Date()
+        let oneDayLessThanOldCacheDate = currentDate.adding(days: -1).adding(seconds: 1)
+        let (sut, cache) = makeSUT(currentDate: currentDate)
+        let items = [makeItem()]
+        
+        assert(sut, completion: .success(items)) {
+            cache.completionHandlerForLoad(.success(items: items, timestamp: oneDayLessThanOldCacheDate))
+        }
+    }
+    
+    func test_load_returned_data_with_one_day_old_cache() {
+        let currentDate = Date()
+        let oneDayOldCacheDate = currentDate.adding(days: -1)
+        let (sut, cache) = makeSUT(currentDate: currentDate)
+        let items = [makeItem()]
+        
+        assert(sut, completion: .success([])) {
+            cache.completionHandlerForLoad(.success(items: items, timestamp: oneDayOldCacheDate))
+        }
+    }
+    
     private func makeSUT(currentDate: Date = Date(),
                          file: StaticString = #filePath,
                          line: UInt = #line) -> (sut: LocalRestaurantLoader, cache: CacheClientSpy) {
@@ -39,10 +57,6 @@ final class LocalRestaurantLoaderForLoadCommandTests: XCTestCase {
         trackForMemoryLeaks(cache)
         trackForMemoryLeaks(sut)
         return (sut, cache)
-    }
-    
-    private func makeItem() -> RestaurantItem {
-        return RestaurantItem(id: UUID(), name: "name", location: "location", distance: 5.5, ratings: 0, parasols: 0)
     }
     
     private func assert(
