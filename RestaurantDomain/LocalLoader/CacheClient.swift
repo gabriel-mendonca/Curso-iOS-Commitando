@@ -23,7 +23,7 @@ public protocol CacheClient {
     func load(completion: @escaping LoadResult)
 }
 
-final class CacheService: CacheClient {
+public final class CacheService: CacheClient {
     
     private struct Cache: Codable {
         let items: [RestaurantItem]
@@ -33,11 +33,11 @@ final class CacheService: CacheClient {
     private let managerURL: URL
     private let callbackQueue = DispatchQueue(label: "\(CacheService.self).CallbackQueue", qos: .userInitiated, attributes: .concurrent)
     
-    init(managerURL: URL) {
+    public init(managerURL: URL) {
         self.managerURL = managerURL
     }
     
-    func save(_ items: [RestaurantItem], timestamp: Date, completion: @escaping SaveResult) {
+    public func save(_ items: [RestaurantItem], timestamp: Date, completion: @escaping SaveResult) {
         let managerURL = self.managerURL
         callbackQueue.async(flags: .barrier) {
             do {
@@ -52,7 +52,7 @@ final class CacheService: CacheClient {
         }
     }
     
-    func delete(completion: @escaping DeleteResult) {
+    public func delete(completion: @escaping DeleteResult) {
          let managerURL = self.managerURL
          callbackQueue.async(flags: .barrier) {
              guard FileManager.default.fileExists(atPath: managerURL.path) else {
@@ -68,7 +68,7 @@ final class CacheService: CacheClient {
          }
      }
     
-    func load(completion: @escaping LoadResult) {
+    public func load(completion: @escaping LoadResult) {
         let managerURL = self.managerURL
         callbackQueue.async {
             guard let data = try? Data(contentsOf: managerURL) else {
