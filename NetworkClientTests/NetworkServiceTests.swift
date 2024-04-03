@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import NetworkClient
 @testable import RestaurantDomain
 
 final class NetworkServiceTests: XCTestCase {

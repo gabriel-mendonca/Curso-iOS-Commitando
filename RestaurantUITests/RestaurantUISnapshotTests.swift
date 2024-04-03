@@ -13,7 +13,7 @@ import RestaurantDomain
 
 final class RestaurantUISnapshotTests: XCTestCase {
 
-    ///Rodar os testes com device iPhone 14 Pro
+    ///Rodar os testes com device iPhone 15 Pro
     func test_snapshot_after_render_restaurantItemCell() {
         let controller = RestaurantItemCellController(viewModel: dataModel[0])
         let cell = RestaurantItemCell(style: .default, reuseIdentifier: RestaurantItemCell.identifier)
@@ -22,7 +22,7 @@ final class RestaurantUISnapshotTests: XCTestCase {
         assertSnapshot(matching: cell, as: .image(size: CGSize(width: 375, height: 175)))
     }
     
-    ///Rodar os testes com device iPhone 14 Pro
+    ///Rodar os testes com device iPhone 15 Pro
     func test_snapshot_render_restaurantListViewController() {
         let (sut, service) = makeSUT()
         let navigation = UINavigationController(rootViewController: sut)
