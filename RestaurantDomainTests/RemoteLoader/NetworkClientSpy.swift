@@ -6,7 +6,8 @@
 //
 
 import Foundation
-import RestaurantDomain
+import NetworkClient
+@testable import RestaurantDomain
 
 final class NetworkClientSpy: NetworkClient {
     private(set) var urlRequests: [URL] = []
